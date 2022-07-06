@@ -33,12 +33,18 @@ class LoginScreen(Screen):
 class SettingsScreen(Screen):
     pass
 
-users_ref = db.reference('/')
-print(users_ref.child('users').get())
+
 # user = auth.create_user(email='rrr@gmail.com',password='121212')
 # users_ref.child('users').push(user.email)
 
+
+
+'''Delete all user from DB'''
+# users_ref = db.reference('/users')
+# users_ref.set('')
+# quit()
 '''Delete all user from auth'''
+# firebase_admin.initialize_app()
 # all_user = auth.list_users().users
 # all_user_uid = []
 # for user in all_user:
@@ -47,33 +53,29 @@ print(users_ref.child('users').get())
 #     auth.delete_user(uid)
 # quit()
 
-'''Delete all user from DB'''
-# users_ref = db.reference('/users')
-# users_ref.set('')
-# quit()
-
 
 GUI = Builder.load_file('main.kv')
 
-# GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 # cred = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
 # firebase_admin.initialize_app(cred)
 
 '''Setting up pyrebase'''
-# firebase_config = {
-#     'apiKey': "AIzaSyCmDTaaINrZtn6HmA-Kb9hTgnBCaZmEABM",
-#     'authDomain': "friendly-fitness-9b323.firebaseapp.com",
-#     'databaseURL': "https://friendly-fitness-9b323-default-rtdb.firebaseio.com",
-#     'projectId': "friendly-fitness-9b323",
-#     'storageBucket': "friendly-fitness-9b323.appspot.com",
-#     'messagingSenderId': "1418575742",
-#     'appId': "1:1418575742:web:0bf5c22179566e2049bd2f",
-#     'measurementId': "G-3ZJKT5F4BQ",
-#     'serciveAccount': GOOGLE_APPLICATION_CREDENTIALS
-# }
-# my_firebase = pyrebase.initialize_app(firebase_config)
-# config_auth = my_firebase.auth()
-# config_db = my_firebase.database()
+firebase_config = {
+    'apiKey': "AIzaSyCmDTaaINrZtn6HmA-Kb9hTgnBCaZmEABM",
+    'authDomain': "friendly-fitness-9b323.firebaseapp.com",
+    'databaseURL': "https://friendly-fitness-9b323-default-rtdb.firebaseio.com",
+    'projectId': "friendly-fitness-9b323",
+    'storageBucket': "friendly-fitness-9b323.appspot.com",
+    'messagingSenderId': "1418575742",
+    'appId': "1:1418575742:web:0bf5c22179566e2049bd2f",
+    'measurementId': "G-3ZJKT5F4BQ",
+    'serciveAccount': GOOGLE_APPLICATION_CREDENTIALS
+}
+my_firebase = pyrebase.initialize_app(firebase_config)
+config_auth = my_firebase.auth()
+config_db = my_firebase.database()
+
 
 '''Start running main app'''
 class MainApp(App):
@@ -82,8 +84,6 @@ class MainApp(App):
         return GUI
 
     def on_start(self):
-        # all_data = config_auth.us
-
         # Populate avatar grid
         avatar_grid = self.root.ids['change_avatar_screen'].ids['avatar_grid']
         for root_dir, folder, file in walk("avatars"):
@@ -115,6 +115,7 @@ class MainApp(App):
         #     print(f'Something wrong with: {e}')
         #     pass
 
+
     def change_screen(self, screen_name):
 
         # Gets the screen manager from the root
@@ -123,22 +124,6 @@ class MainApp(App):
         # Sets the current screen to the screen that was passed
         # in as parameter in homescreen.kv - app.change_screen
         screen_manager.current = screen_name
-
-    # def change_avatar(self, image, widget_id):
-    #     ccccc = MyFireBase.return_curr_user()
-    #     print(ccccc)
-    #     # Change avatar in the app
-    #     current_avatar_image = self.root.ids['avatar_image']
-    #     current_avatar_image.source = "avatars/" + image
-    #
-    #     # Change avatar in Firebase
-    #     # TODO get current user
-    #     config_auth.sign_in_with_email_and_password('wq@gmail.com', '121212')
-    #     local_id = config_auth.current_user['localId']
-    #     loc_id = config_db.child(local_id).update({'avatar': image})
-    #     print(loc_id)
-    #
-    #     self.change_screen("settings_screen")
 
 
 MainApp().run()
