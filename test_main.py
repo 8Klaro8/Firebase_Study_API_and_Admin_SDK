@@ -29,6 +29,8 @@ class ChangeAvatarScreen(Screen):
     pass
 class LoginScreen(Screen):
     pass
+class AddFriendScreen(Screen):
+    pass
 
 class SettingsScreen(Screen):
     pass
@@ -62,14 +64,14 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
 '''Setting up pyrebase'''
 firebase_config = {
-    'apiKey': "AIzaSyCmDTaaINrZtn6HmA-Kb9hTgnBCaZmEABM",
-    'authDomain': "friendly-fitness-9b323.firebaseapp.com",
-    'databaseURL': "https://friendly-fitness-9b323-default-rtdb.firebaseio.com",
-    'projectId': "friendly-fitness-9b323",
-    'storageBucket': "friendly-fitness-9b323.appspot.com",
-    'messagingSenderId': "1418575742",
-    'appId': "1:1418575742:web:0bf5c22179566e2049bd2f",
-    'measurementId': "G-3ZJKT5F4BQ",
+    'apiKey': "AIzaSyAV8XcBYsI11P15Asy1Vtm7k4uwsSdKDtw",
+    'authDomain': "test-project-80109.firebaseapp.com",
+    'databaseURL': "https://test-project-80109-default-rtdb.firebaseio.com",
+    'projectId': "test-project-80109",
+    'storageBucket': "test-project-80109.appspot.com",
+    'messagingSenderId': "1009245828697",
+    'appId': "1:1009245828697:web:a46bc86feec4e064882348",
+    'measurementId': "G-T086LY8ESC",
     'serciveAccount': GOOGLE_APPLICATION_CREDENTIALS
 }
 my_firebase = pyrebase.initialize_app(firebase_config)
@@ -84,6 +86,7 @@ class MainApp(App):
         return GUI
 
     def on_start(self):
+
         # Populate avatar grid
         avatar_grid = self.root.ids['change_avatar_screen'].ids['avatar_grid']
         for root_dir, folder, file in walk("avatars"):
@@ -92,38 +95,26 @@ class MainApp(App):
                 avatar_grid.add_widget(img)
 
 
-            # Get and update streak label
-            # streak_label = self.root.ids['home_screen'].ids['streak_label']
-            # streak_label.text = str(data['streak']) + ' Day Streak!'
-
-            # Get and update friend ID label
-            # friend_id_label = self.root.ids['settings_screen'].ids['friend_id_label']
-            # friend_id_label.text = 'Friend ID: ' + str(data['friend_id_label'])
-            # Get banner grid
-            # banner_grid = self.root.ids['home_screen'].ids['banner_grid']
-            # for workout in workouts:
-            #     for i in range(5):
-            #         # Populate workout grid in home screen
-            #         w = WorkoutBanner(workout_image=workout['workout_image'], description=workout['description'],
-            #                           type_image=workout['type_image'], number=workout['number'], units=workout['units'],
-            #                           likes=workout['likes'])
-            #         banner_grid.add_widget(w)
-
-            # self.change_screen('home_screen')
-
-        # except Exception as e:
-        #     print(f'Something wrong with: {e}')
-        #     pass
 
 
     def change_screen(self, screen_name):
 
+        '''Changin screen change direction back to left (changed to right in change avatar function) '''
+        self.root.ids['screen_manager'].transition.direction = 'left'
         # Gets the screen manager from the root
         screen_manager = self.root.ids['screen_manager']
 
         # Sets the current screen to the screen that was passed
         # in as parameter in homescreen.kv - app.change_screen
         screen_manager.current = screen_name
+
+    def add_friend(self, friend_id):
+        friend_exists = config_db.child('users').order_by_child('my_friend_id').equal_to(str(friend_id)).get()
+        if friend_exists[0].val()['my_friend_id'] == friend_id:
+            print('found')
+        else:
+            print('There is no user with this id')
+
 
 
 MainApp().run()

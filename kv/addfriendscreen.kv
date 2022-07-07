@@ -1,0 +1,34 @@
+
+
+
+<AddFriendScreen>:
+    canvas:
+        Color:
+            rgb: utils.get_color_from_hex("#39B3F2")
+        Rectangle:
+            size: self.size
+    FloatLayout:
+        TextInput:
+            id: add_friend_input
+            hint_text: "friend id"
+            size_hint: .8, .1
+            pos_hint: {"top": .9, "right": .9}
+        Label:
+            id: add_friend_label
+            size_hint: .8, .1
+            pos_hint: {"top": .5, "right": .9}
+        ImageButton:
+            source: "icons/left-arrow.png"
+            pos_hint: {"top": .3, "right": .2}
+            size_hint: .2, .2
+            on_release:
+                app.change_screen('settings_screen')
+                root.manager.transition.direction = 'right'
+        ImageButton:
+            source: "icons/right-arrow.png"
+            pos_hint: {"top": .3, "right": 1}
+            size_hint: .2, .2
+            on_release:
+                app.add_friend(add_friend_input.text.strip())
+
+
