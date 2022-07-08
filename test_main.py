@@ -42,25 +42,30 @@ class SettingsScreen(Screen):
 
 
 '''Delete all user from DB'''
-# users_ref = db.reference('/users')
-# users_ref.set('')
-# quit()
+def delete_all_user_from_db():
+    users_ref = db.reference('/users')
+    users_ref.set('')
+    quit()
+# delete_all_user_from_db()
+
 '''Delete all user from auth'''
-# firebase_admin.initialize_app()
-# all_user = auth.list_users().users
-# all_user_uid = []
-# for user in all_user:
-#     all_user_uid.append(user.uid)
-# for uid in all_user_uid:
-#     auth.delete_user(uid)
-# quit()
+def delete_all_user_from_auth():
+    global uid
+    firebase_admin.initialize_app()
+    all_user = auth.list_users().users
+    all_user_uid = []
+    for user in all_user:
+        all_user_uid.append(user.uid)
+    for uid in all_user_uid:
+        auth.delete_user(uid)
+    quit()
+# delete_all_user_from_auth()
 
 
+'''Build GUI for kivy'''
 GUI = Builder.load_file('main.kv')
 
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-# cred = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
-# firebase_admin.initialize_app(cred)
 
 '''Setting up pyrebase'''
 firebase_config = {
@@ -95,11 +100,9 @@ class MainApp(App):
                 avatar_grid.add_widget(img)
 
 
-
-
     def change_screen(self, screen_name):
 
-        '''Changin screen change direction back to left (changed to right in change avatar function) '''
+        '''Changing screen change direction back to left (changed to right in change avatar function) '''
         self.root.ids['screen_manager'].transition.direction = 'left'
         # Gets the screen manager from the root
         screen_manager = self.root.ids['screen_manager']
@@ -109,12 +112,11 @@ class MainApp(App):
         screen_manager.current = screen_name
 
     def add_friend(self, friend_id):
-        friend_exists = config_db.child('users').order_by_child('my_friend_id').equal_to(str(friend_id)).get()
-        if friend_exists[0].val()['my_friend_id'] == friend_id:
-            print('found')
-        else:
-            print('There is no user with this id')
-
-
+        try:
+            friend_exists = config_db.child('users').order_by_child('my_friend_id').equal_to(str(friend_id)).get()
+            if friend_exists[0].val()['my_friend_id'] == friend_id:
+                print('found')
+        except IndexError:
+            self.root.ids['add_friend_screen'].ids['friend_id_message'].text = f'There is no user with this Id: {friend_id}'
 
 MainApp().run()

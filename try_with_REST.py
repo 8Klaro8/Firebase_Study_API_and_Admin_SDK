@@ -1,12 +1,52 @@
 import json
 
-import firebase_admin
+import firebase_admin.auth
 from firebase_admin import credentials, db, auth, exceptions
 from dotenv import load_dotenv
 import os
 import requests
-
 load_dotenv()
+
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+cred = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
+firebase_admin.initialize_app(cred, {
+    'databaseURL' : 'https://test-project-80109-default-rtdb.firebaseio.com/',
+    'databaseAuthVariableOverride': None
+        # {
+        #     'uid': 'my-service-worker'
+        # }
+})
+
+'''Create user and add to db'''
+# TODO add user to DB
+def create_user():
+    # user = auth.create_user(
+    #     email='gamma4@example.com',
+    #     email_verified=False,
+    #     phone_number='+32423523334',
+    #     password='secretPassword',
+    #     display_name='John Doe')
+
+    # new_user = '{"email": "%s",' \
+    #            '"email_verified": "%s",' \
+    #            '"phone_number": "%s",' \
+    #            '"display_name" "%s"}' % (user.email, user.email_verified, user.phone_number, user.display_name)
+
+    new_user = '{"DEGA": {"AGE": "21"}}'
+    return new_user
+
+update_url = f'https://test-project-80109-default-rtdb.firebaseio.com/users.json'
+del_url = 'https://test-project-80109-default-rtdb.firebaseio.com/users/DEGA.json'
+
+useer_ref = db.reference('https://test-project-80109-default-rtdb.firebaseio.com/.json')
+print(useer_ref)
+
+data_uo_update = '{"AGE": "12"}'
+# delit = requests.delete(url=del_url)
+result = requests.patch(url=update_url, data=data_uo_update)
+quit()
+
+
 
 '''PROJECT URL'''
 url = 'https://test-project-80109-default-rtdb.firebaseio.com/.json'
@@ -37,12 +77,13 @@ second_user_uid = '-N5VmZedi-e8yio3wJUx'
 third_user_uid = '-N5VnOtUYnhrDERKoeIn'
 
 '''Update multiple elements with one APi call'''
-requests.patch(url=url, data='{"%s/phone_number": "+493434334",'
-                            ' "%s/phone_number": "+493434343434"}' % (third_user_uid, second_user_uid))
+requests.patch(url=url, data='{"%s/phone_number": "+111111111111",'
+                            ' "%s/phone_number": "+22222222"}' % (third_user_uid, second_user_uid))
 
 '''Getting Etag'''
 # etag_req = requests.get(url="https://test-project-80109-default-rtdb.firebaseio.com/-N5VmZedi-e8yio3wJUx?X-Firebase-ETag: true")
 # print(etag_req.content.decode())
+
 
 # requests.delete('https://test-project-80109-default-rtdb.firebaseio.com/-N5VnRe0pYS47SIcAa4t.json')
 

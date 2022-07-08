@@ -13,10 +13,6 @@
             hint_text: "friend id"
             size_hint: .8, .1
             pos_hint: {"top": .9, "right": .9}
-        Label:
-            id: add_friend_label
-            size_hint: .8, .1
-            pos_hint: {"top": .5, "right": .9}
         ImageButton:
             source: "icons/left-arrow.png"
             pos_hint: {"top": .3, "right": .2}
@@ -30,5 +26,8 @@
             size_hint: .2, .2
             on_release:
                 app.add_friend(add_friend_input.text.strip())
-
-
+        Label:
+            id: friend_id_message
+            color: (1, 0, 0, 1)
+            size_hint: .8, .1
+            pos_hint: {"top": .99, "right": .9}

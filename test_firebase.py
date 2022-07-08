@@ -31,9 +31,11 @@ my_firebase = pyrebase.initialize_app(firebaseConfig) # initialize firebase
 config_db = my_firebase.database() # setting up database
 config_auth = my_firebase.auth() # setting up auth
 
+start_friend_id = '0'
+
 class MyFireBase():
     def sign_up(self, email, password):
-        self.app = App.get_running_app() # root for the MainApp inside test_main.py
+        self.app = App.get_running_app()  # root for the MainApp inside test_main.py
 
         '''Create user with admin sdk'''
         try:
@@ -41,21 +43,46 @@ class MyFireBase():
             user = config_auth.create_user_with_email_and_password(email, password)
             user_uid = user['localId']
 
-            my_friend_id = 0
             config_db.child('users').update({user_uid: {'email': user['email'],
                                                         'avatar': 'avatar_pic.png',
                                                         'streak': 0,
-                                                        'my_friend_id': '%s' % my_friend_id,
+                                                        'my_friend_id': '%s' % self.friend_id_handler(),
                                                         'friends': '',
                                                         'workouts': ''}})
-
             self.change_screen('home_screen'),
             print('User logged in')
-        except BaseException as e:
-            err_message = json.loads(e.args[1])['error']['message']
-            if err_message == 'EMAIL_EXISTS':
-                self.app.root.ids['login_screen'].ids['login_message'].text = 'This user already exists!'
 
+        except BaseException as e:
+            try:
+                if json.loads(e.args[1])['error']['message'] == 'INVALID_EMAIL':
+                    self.app.root.ids['login_screen'].ids['login_message'].text = 'Invalid email format'
+                print(e)
+                try:
+                    err_message = json.loads(e.args[1])['error']['message']
+                    if err_message == 'EMAIL_EXISTS':
+                        self.app.root.ids['login_screen'].ids['login_message'].text = 'This user already exists!'
+                except:
+                    config_db.child('users').child('example_user').set({'fake_key':'fake_value'})
+                    print('except')
+            except:
+                with open('friend_id_storage.txt', 'w') as f:
+                    f.write(start_friend_id)
+
+    ''''Creates file to store friend id and reads it'''
+    def friend_id_handler(self):
+        try:
+            with open('friend_id_storage.txt', 'r') as f:
+                current_friend_id = f.read()
+                next_friend_id = int(current_friend_id) + 1
+                next_friend_id = str(next_friend_id)
+
+                with open('friend_id_storage.txt', 'w') as f:
+                    f.write(next_friend_id)
+        except:
+            with open('friend_id_storage.txt', 'w') as f:
+                next_friend_id = f.write(start_friend_id)
+            print('NOPE')
+        return next_friend_id
 
     def sign_in(self, email, password):
         self.app = App.get_running_app()
@@ -108,9 +135,7 @@ class MyFireBase():
                 self.app.root.ids['login_screen'].ids['login_message'].text = 'This user name already exists'
 
     def log_out(self):
-
-        current_user = config_auth.current_user
-        current_user = None
+        config_auth.current_user = None
         self.change_screen('login_screen')
         avatar_img = self.app.root.ids['avatar_image']
         avatar_img.source = "avatars/avatar_pic.png"
@@ -119,8 +144,6 @@ class MyFireBase():
     def change_screen(self, screen_name):
         screen_manager = self.app.root.ids['screen_manager']
         screen_manager.current = screen_name
-
-
 
     def change_avatar(self, image, widget_id):
         # Change avatar in app
@@ -137,7 +160,7 @@ class MyFireBase():
     def get_current_screen(self):
         screen_manager = self.app.root.ids['screen_manager']
         current_screen = screen_manager.current
-        # TODO - display log out button only if theu ser is logged in
+        # TODO - display log out button only if the user is logged in
 
         return current_screen
 
