@@ -25,7 +25,7 @@
             pos_hint: {"top": .3, "right": 1}
             size_hint: .2, .2
             on_release:
-                app.add_friend(add_friend_input.text.strip())
+                app.my_firebase.add_friend(add_friend_input.text.strip())
         Label:
             id: friend_id_message
             color: (1, 0, 0, 1)

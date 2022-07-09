@@ -36,32 +36,6 @@ class SettingsScreen(Screen):
     pass
 
 
-# user = auth.create_user(email='rrr@gmail.com',password='121212')
-# users_ref.child('users').push(user.email)
-
-
-
-'''Delete all user from DB'''
-def delete_all_user_from_db():
-    users_ref = db.reference('/users')
-    users_ref.set('')
-    quit()
-# delete_all_user_from_db()
-
-'''Delete all user from auth'''
-def delete_all_user_from_auth():
-    global uid
-    firebase_admin.initialize_app()
-    all_user = auth.list_users().users
-    all_user_uid = []
-    for user in all_user:
-        all_user_uid.append(user.uid)
-    for uid in all_user_uid:
-        auth.delete_user(uid)
-    quit()
-# delete_all_user_from_auth()
-
-
 '''Build GUI for kivy'''
 GUI = Builder.load_file('main.kv')
 
@@ -82,6 +56,25 @@ firebase_config = {
 my_firebase = pyrebase.initialize_app(firebase_config)
 config_auth = my_firebase.auth()
 config_db = my_firebase.database()
+
+'''Delete all user from DB'''
+def delete_all_user_from_db():
+    config_db.child('').set('')
+    quit()
+# delete_all_user_from_db()
+
+'''Delete all user from auth'''
+def delete_all_user_from_auth():
+    global uid
+    firebase_admin.initialize_app()
+    all_user = auth.list_users().users
+    all_user_uid = []
+    for user in all_user:
+        all_user_uid.append(user.uid)
+    for uid in all_user_uid:
+        auth.delete_user(uid)
+    quit()
+# delete_all_user_from_auth()
 
 
 '''Start running main app'''
@@ -111,12 +104,5 @@ class MainApp(App):
         # in as parameter in homescreen.kv - app.change_screen
         screen_manager.current = screen_name
 
-    def add_friend(self, friend_id):
-        try:
-            friend_exists = config_db.child('users').order_by_child('my_friend_id').equal_to(str(friend_id)).get()
-            if friend_exists[0].val()['my_friend_id'] == friend_id:
-                print('found')
-        except IndexError:
-            self.root.ids['add_friend_screen'].ids['friend_id_message'].text = f'There is no user with this Id: {friend_id}'
 
 MainApp().run()

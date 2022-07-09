@@ -1,4 +1,5 @@
 import json
+import time
 
 import firebase
 import requests
@@ -40,15 +41,17 @@ class MyFireBase():
         '''Create user with admin sdk'''
         try:
             # user = auth.create_user(email=email, password=password) # creates user in the auth
-            user = config_auth.create_user_with_email_and_password(email, password)
-            user_uid = user['localId']
+            self.user = config_auth.create_user_with_email_and_password(email, password)
+            user_uid = self.user['localId']
 
-            config_db.child('users').update({user_uid: {'email': user['email'],
+            config_db.child('users').update({user_uid: {'email': self.user['email'],
                                                         'avatar': 'avatar_pic.png',
                                                         'streak': 0,
                                                         'my_friend_id': '%s' % self.friend_id_handler(),
                                                         'friends': '',
                                                         'workouts': ''}})
+            user_local_id = self.user['localId']
+            self.friend_list = config_db.child('users').child(user_local_id).child('friends').get().val()
             self.change_screen('home_screen'),
             print('User logged in')
 
@@ -85,6 +88,7 @@ class MyFireBase():
         return next_friend_id
 
     def sign_in(self, email, password):
+        # TODO hndle missing password exception
         self.app = App.get_running_app()
         try:
             config_auth.sign_in_with_email_and_password(email, password)
@@ -150,9 +154,9 @@ class MyFireBase():
         avatar_img = self.app.root.ids['avatar_image']
         avatar_img.source = 'avatars/' + image
 
-        current_user = config_auth.current_user
+        # current_user = config_auth.current_user
 
-        config_db.child('users').child(current_user['localId']).update({'avatar': image})
+        config_db.child('users').child(self.user['localId']).update({'avatar': image})
 
         self.app.root.ids['screen_manager'].transition.direction = 'right'
         self.change_screen("settings_screen")
@@ -163,5 +167,33 @@ class MyFireBase():
         # TODO - display log out button only if the user is logged in
 
         return current_screen
+
+    def add_friend(self, friend_id):
+        pass
+        try:
+            friend_exists = config_db.child('users').order_by_child('my_friend_id').equal_to(str(friend_id)).get()
+            if friend_exists[0].val()['my_friend_id'] == friend_id:
+                # TODO program crashes when I try to log out and then add friend
+                if self.user != None:
+                    # TODO Correct error: TypeError: 'NoneType' object is not subscriptable
+
+                    user_local_id = self.user['localId']
+                    friends_value = config_db.child('users').child(user_local_id).child('friends').get().val()
+                    if friend_id == config_db.child('users').child(user_local_id).child('my_friend_id').get().val():
+                        self.app.root.ids['add_friend_screen'].ids[
+                            'friend_id_message'].text = f'You cant add yourself as friend'
+                    elif friend_id in friends_value:
+                        self.app.root.ids['add_friend_screen'].ids[
+                            'friend_id_message'].text = f'{friend_id} is already your friend'
+
+                    else:
+                        new_friends_value = f'{friends_value}, {friend_id}'
+                        config_db.child('users').child(user_local_id).update({"friends": "%s" % new_friends_value})
+                        self.app.root.ids['add_friend_screen'].ids[
+                            'friend_id_message'].text = f'{friend_id} added to your friend list'
+
+
+        except IndexError:
+            self.app.root.ids['add_friend_screen'].ids['friend_id_message'].text = f'There is no user with this Id: {friend_id}'
 
 
